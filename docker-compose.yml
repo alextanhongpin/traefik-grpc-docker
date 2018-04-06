@@ -6,15 +6,18 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
     # setting `-internal=true` will cause linkerd and namerd to fail silently
-    command: -ip=docker.for.mac.localhost -deregister=always -cleanup -tags=registrator consul://consul:8500
-    # networks:
-    #   discovery:
+    # command: -ip=docker.for.mac.localhost -deregister=always -cleanup -tags=registrator consul://consul:8500
+    command: consul://consul:8500
+    networks:
+      grpc:
 
   consul:
     image: consul:1.0.6
     restart: always
     ports:
       - 127.0.0.1:8500:8500
+    networks:
+      grpc:
 
   frontend.local:
     image: traefik:1.6
@@ -30,8 +33,8 @@ services:
       - backend.cert
       - frontend.cert
       - frontend.key
-    # extra_hosts:
-    #   - frontend.local:0.0.0.0
+    networks:
+      grpc:
 
   backend.local:
     image: alextanhongpin/grpc-server:latest
@@ -41,24 +44,35 @@ services:
       - PORT=:50051
       - SSL_CERT=/run/secrets/backend.cert
       - SSL_KEY=/run/secrets/backend.key
-      - SERVICE_NAME=server
-      - SERVICE_REGION=ap-southeast-1
-      - SERVICE_TAGS=traefik.enable=true,traefik.backend=backend.local,traefik.frontend.entryPoint=https,traefik.frontend.rule=Host:frontend.local
-      # ,traefik.Echo.port=50051,traefik.Echo.frontend.backend=backend1,traefik.Echo.frontend.entrypoints=https
+      
     secrets:
       - backend.cert
       - backend.key
+    # labels:
+      # - SERVICE_NAME=server
+      # - SERVICE_REGION=ap-southeast-1
+      # - SERVICE_TAGS=traefik.enable=true,traefik.frontend.entryPoint=https,traefik.frontend.rule=Host:frontend.local,traefik.default.protocol=https,traefik.backend=backend-server
+
+      # - traefik.backend=backend.local
+      # - traefik.docker.network=web
+      # - traefik.frontend.rule=Host:frontend.local
+      # - traefik.enable=true
+      # - traefik.port=50051
+      # - traefik.default.protocol=https
     # extra_hosts:
-      # - backend.local:0.0.0.0
+    #   - backend.local:0.0.0.0
+    networks:
+      grpc:
 
   client:
     image: alextanhongpin/grpc-client:latest
     environment:
       - SSL_CERT=/run/secrets/frontend.cert
-      # - SRV_URL=frontend.local:4443
       - SRV_URL=frontend.local:4443
     secrets:
       - frontend.cert
+    networks:
+      grpc:
 
 secrets:
   backend.cert: 
@@ -69,3 +83,6 @@ secrets:
     file: ./cert/frontend.cert
   frontend.key: 
     file: ./cert/frontend.key
+
+networks:
+  grpc:

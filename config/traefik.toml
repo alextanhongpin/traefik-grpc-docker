@@ -26,6 +26,7 @@ RootCAs = [ "/run/secrets/backend.cert" ]
 [docker]
 domain = "docker.local"
 watch = true
+exposedByDefault = false
 
 [consulCatalog]
 endpoint = "consul:8500"
@@ -42,7 +43,6 @@ prefix = "traefik" # All tags have to be prefixed with traefik, e.g. traefik.ena
     url = "https://backend.local:50051"
     # [backends.backend1.servers.server2]
     # url = "https://backend.local:50052"
-    # weight = 3
 
 [frontends]
   [frontends.frontend1]
