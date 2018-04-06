@@ -17,7 +17,7 @@ import (
 func main() {
 	sslCert := os.Getenv("SSL_CERT")
 	srvURL := os.Getenv("SRV_URL")
-	port := os.Getenv("PORT")
+
 	// Read cert file
 	FrontendCert, err := ioutil.ReadFile(sslCert)
 	if err != nil {
@@ -52,7 +52,6 @@ func main() {
 	})
 	if err != nil {
 		log.Fatalf("error echo: %s", err.Error())
-
 	}
 	log.Printf("got res: %#v", res)
 }

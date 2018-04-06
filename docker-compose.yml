@@ -63,9 +63,6 @@ services:
     environment:
       - SSL_CERT=/run/secrets/frontend.cert
       - SRV_URL=frontend.local:4443
-      - PORT=:3000
-    ports:
-      - 127.0.0.1::3000
     secrets:
       - frontend.cert
     network_mode: host
