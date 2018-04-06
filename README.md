@@ -177,3 +177,8 @@ go run server/main.go
 # Run the grpc client in another terminal
 go run client/main.go
 ```
+
+
+## Miscelleanous
+
+In docker, it is not possible to overwrite the backend url, unless you hardcode the file name.

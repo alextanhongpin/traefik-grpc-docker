@@ -57,5 +57,8 @@ up:
 down:
 	@docker-compose down
 
+scale:
+	@docker-compose up -d --scale server=2
+
 test-client:
-	@docker-compose up client
+	docker-compose up client & docker-compose up client

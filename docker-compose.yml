@@ -6,8 +6,7 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
     # setting `-internal=true` will cause linkerd and namerd to fail silently
-    # command: -ip=docker.for.mac.localhost -deregister=always -cleanup -tags=registrator consul://consul:8500
-    command: consul://consul:8500
+    command: -ip=docker.for.mac.localhost -deregister=always -cleanup -tags=registrator consul://consul:8500
     networks:
       grpc:
 
@@ -19,7 +18,7 @@ services:
     networks:
       grpc:
 
-  frontend.local:
+  traefik:
     image: traefik:1.6
     restart: always
     ports:
@@ -35,34 +34,58 @@ services:
       - frontend.key
     networks:
       grpc:
+        aliases:
+          - frontend.local
 
-  backend.local:
+  server:
     image: alextanhongpin/grpc-server:latest
     ports:
-      - 127.0.0.1:50051:50051
+      - 127.0.0.1::50051
     environment:
       - PORT=:50051
       - SSL_CERT=/run/secrets/backend.cert
       - SSL_KEY=/run/secrets/backend.key
-      
     secrets:
       - backend.cert
       - backend.key
     # labels:
+      # Enables the consul_catalog, by passing the tags to consul through registrator
       # - SERVICE_NAME=server
       # - SERVICE_REGION=ap-southeast-1
+      ## NOTE: Not all configuration is available - see the Backend: Consul Catalog documentation
       # - SERVICE_TAGS=traefik.enable=true,traefik.frontend.entryPoint=https,traefik.frontend.rule=Host:frontend.local,traefik.default.protocol=https,traefik.backend=backend-server
-
+      ## NOTE: Not all configuration is available - see the Backend: Docker documentation
+      # Enables the docker configuration
+      # - traefik.tags=api
+      # - traefik.tags=car
+      # - traefik.enable=true
       # - traefik.backend=backend.local
       # - traefik.docker.network=web
       # - traefik.frontend.rule=Host:frontend.local
-      # - traefik.enable=true
       # - traefik.port=50051
       # - traefik.default.protocol=https
-    # extra_hosts:
-    #   - backend.local:0.0.0.0
     networks:
       grpc:
+        # Here, we give it a alias to the hostname
+        aliases:
+          - backend.local
+
+  server1:
+    image: alextanhongpin/grpc-server:latest
+    ports:
+      - 127.0.0.1::50052
+    environment:
+      - PORT=:50052
+      - SSL_CERT=/run/secrets/backend.cert
+      - SSL_KEY=/run/secrets/backend.key
+    secrets:
+      - backend.cert
+      - backend.key
+    networks:
+      grpc:
+        # Here, we give it a alias to the hostname
+        aliases:
+          - backend.local
 
   client:
     image: alextanhongpin/grpc-client:latest
