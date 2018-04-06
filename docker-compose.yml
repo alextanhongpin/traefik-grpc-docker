@@ -16,7 +16,7 @@ services:
     ports:
       - 127.0.0.1:8500:8500
 
-  traefik:
+  frontend.local:
     image: traefik:1.6
     restart: always
     ports:
@@ -30,9 +30,10 @@ services:
       - backend.cert
       - frontend.cert
       - frontend.key
-    network_mode: host
+    # extra_hosts:
+    #   - frontend.local:0.0.0.0
 
-  server:
+  backend.local:
     image: alextanhongpin/grpc-server:latest
     ports:
       - 127.0.0.1:50051:50051
@@ -40,32 +41,24 @@ services:
       - PORT=:50051
       - SSL_CERT=/run/secrets/backend.cert
       - SSL_KEY=/run/secrets/backend.key
+      - SERVICE_NAME=server
+      - SERVICE_REGION=ap-southeast-1
+      - SERVICE_TAGS=traefik.enable=true,traefik.backend=backend.local,traefik.frontend.entryPoint=https,traefik.frontend.rule=Host:frontend.local
+      # ,traefik.Echo.port=50051,traefik.Echo.frontend.backend=backend1,traefik.Echo.frontend.entrypoints=https
     secrets:
       - backend.cert
       - backend.key
-    network_mode: host
-
-  server2:
-    image: alextanhongpin/grpc-server:latest
-    ports:
-      - 127.0.0.1:50052:50052
-    environment:
-      - PORT=:50052
-      - SSL_CERT=/run/secrets/backend.cert
-      - SSL_KEY=/run/secrets/backend.key
-    secrets:
-      - backend.cert
-      - backend.key
-    network_mode: host
+    # extra_hosts:
+      # - backend.local:0.0.0.0
 
   client:
     image: alextanhongpin/grpc-client:latest
     environment:
       - SSL_CERT=/run/secrets/frontend.cert
+      # - SRV_URL=frontend.local:4443
       - SRV_URL=frontend.local:4443
     secrets:
       - frontend.cert
-    network_mode: host
 
 secrets:
   backend.cert: 

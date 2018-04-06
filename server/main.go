@@ -20,6 +20,7 @@ type echoServer struct{}
 
 func (s *echoServer) Echo(ctx context.Context, msg *pb.EchoRequest) (*pb.EchoResponse, error) {
 	name, err := os.Hostname()
+	log.Println("echo method called by", name)
 	if err != nil {
 		return nil, err
 	}
