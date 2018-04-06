@@ -21,6 +21,8 @@ RootCAs = [ "/run/secrets/backend.cert" ]
 
 [api]
 
+# [file]
+
 [docker]
 domain = "docker.local"
 watch = true
@@ -28,18 +30,19 @@ watch = true
 [consulCatalog]
 endpoint = "consul:8500"
 exposedByDefault = false # You have to manually add the tags to enable the service to be discovered
-domain = "consul.localhost"
+domain = "local"
 prefix = "traefik" # All tags have to be prefixed with traefik, e.g. traefik.enable=true
 
-# [backends]
-#   [backends.backend1]
-#     [backends.backend1.servers.server1]
-#     # Access on backend with HTTPS
-#     url = "https://backend.local:50051"
+[file]
 
+[backends]
+  [backends.backend1]
+    [backends.backend1.servers.server1]
+    # Access on backend with HTTPS
+    url = "https://backend.local:50051"
 
-# [frontends]
-#   [frontends.frontend1]
-#   backend = "backend1"
-#     [frontends.frontend1.routes.Echo]
-#     rule = "Host:frontend.local"
+[frontends]
+  [frontends.frontend1]
+  backend = "backend1"
+    [frontends.frontend1.routes.Echo]
+    rule = "Host:frontend.local"

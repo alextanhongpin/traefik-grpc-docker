@@ -56,3 +56,6 @@ up:
 
 down:
 	@docker-compose down
+
+test-client:
+	@docker-compose up client

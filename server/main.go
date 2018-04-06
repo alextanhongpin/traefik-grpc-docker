@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -18,8 +19,12 @@ import (
 type echoServer struct{}
 
 func (s *echoServer) Echo(ctx context.Context, msg *pb.EchoRequest) (*pb.EchoResponse, error) {
+	name, err := os.Hostname()
+	if err != nil {
+		return nil, err
+	}
 	return &pb.EchoResponse{
-		Text: msg.Text,
+		Text: fmt.Sprintf("%s from %s", msg.Text, name),
 	}, nil
 }
 
