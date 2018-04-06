@@ -1,0 +1,45 @@
+debug = true
+defaultEntryPoints = ["https"]
+InsecureSkipVerify = true
+
+# For secure connection on backend.local
+# RootCAs = [ "./backend.cert" ]
+RootCAs = [ "/run/secrets/backend.cert" ]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":4443"
+    [entryPoints.https.tls]
+     # For secure connection on frontend.local
+        [[entryPoints.https.tls.certificates]]
+        certFile = "/run/secrets/frontend.cert" # "./frontend.cert"
+        keyFile  = "/run/secrets/frontend.key" # "./frontend.key"
+
+[api]
+
+[docker]
+domain = "docker.local"
+watch = true
+
+[consulCatalog]
+endpoint = "consul:8500"
+exposedByDefault = false # You have to manually add the tags to enable the service to be discovered
+domain = "consul.localhost"
+prefix = "traefik" # All tags have to be prefixed with traefik, e.g. traefik.enable=true
+
+# [backends]
+#   [backends.backend1]
+#     [backends.backend1.servers.server1]
+#     # Access on backend with HTTPS
+#     url = "https://backend.local:50051"
+
+
+# [frontends]
+#   [frontends.frontend1]
+#   backend = "backend1"
+#     [frontends.frontend1.routes.Echo]
+#     rule = "Host:frontend.local"

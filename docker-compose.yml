@@ -1,0 +1,73 @@
+version: '3.6'
+services:
+  registrator:
+    image: gliderlabs/registrator:vendor
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    # setting `-internal=true` will cause linkerd and namerd to fail silently
+    command: -ip=docker.for.mac.localhost -deregister=always -cleanup -tags=registrator consul://consul:8500
+    networks:
+      discovery:
+
+  consul:
+    image: consul:1.0.6
+    restart: always
+    ports:
+      - 127.0.0.1:8500:8500
+    networks:
+      discovery:
+
+  traefik:
+    image: traefik:1.6
+    restart: always
+    ports:
+      - 127.0.0.1:8080:8080
+      - 127.0.0.1:80:80
+    volumes:
+      - $PWD/config/traefik.toml:/etc/traefik/traefik.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - backend.cert
+      - frontend.cert
+      - frontend.key
+    networks:
+      discovery:
+
+  server:
+    image: alextanhongpin/grpc-server:latest
+    ports:
+      - 50051:50051
+    environment:
+      - SERVICE_NAME=httpd
+      - SERVICE_REGION=ap-southeast-1
+      - SERVICE_TAGS=traefik.enable=true,traefik.backend=server,traefik.frontend.entryPoints=https,traefik.frontend.rule=Host:server.consul.localhost
+      - PORT=0.0.0.0:50051
+      - SSL_CERT=/run/secrets/backend.cert
+      - SSL_KEY=/run/secrets/backend.key
+    secrets:
+      - backend.cert
+      - backend.key
+    networks:
+      proxy:
+  
+  client:
+    image: alextanhongpin/grpc-client:latest
+    ports:
+      - 4443:4443
+    networks:
+      proxy:
+
+networks:
+  discovery:
+  proxy:
+
+secrets:
+  backend.cert: 
+    file: ./backend.cert
+  backend.key: 
+    file: ./backend.key
+  frontend.cert: 
+    file: ./frontend.cert
+  frontend.key: 
+    file: ./frontend.key
