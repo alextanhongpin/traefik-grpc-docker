@@ -45,11 +45,27 @@ services:
       - backend.key
     network_mode: host
 
+  server2:
+    image: alextanhongpin/grpc-server:latest
+    ports:
+      - 127.0.0.1:50052:50052
+    environment:
+      - PORT=:50052
+      - SSL_CERT=/run/secrets/backend.cert
+      - SSL_KEY=/run/secrets/backend.key
+    secrets:
+      - backend.cert
+      - backend.key
+    network_mode: host
+
   client:
     image: alextanhongpin/grpc-client:latest
     environment:
       - SSL_CERT=/run/secrets/frontend.cert
       - SRV_URL=frontend.local:4443
+      - PORT=:3000
+    ports:
+      - 127.0.0.1::3000
     secrets:
       - frontend.cert
     network_mode: host

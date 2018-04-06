@@ -40,6 +40,10 @@ prefix = "traefik" # All tags have to be prefixed with traefik, e.g. traefik.ena
     [backends.backend1.servers.server1]
     # Access on backend with HTTPS
     url = "https://backend.local:50051"
+    weight = 1
+    [backends.backend1.servers.server2]
+    url = "https://backend.local:50052"
+    weight = 3
 
 [frontends]
   [frontends.frontend1]
