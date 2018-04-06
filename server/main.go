@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -27,16 +28,14 @@ func main() {
 	sslKey := os.Getenv("SSL_KEY")
 	port := os.Getenv("PORT")
 
-	log.Println(sslCert, sslKey)
-
 	//
 	// CRED
 	//
-	// BackendCert, _ := ioutil.ReadFile("/runs/secrets/backend.cert")
-	// BackendKey, _ := ioutil.ReadFile("/runs/secrets/backend.key")
+	BackendCert, _ := ioutil.ReadFile(sslCert)
+	BackendKey, _ := ioutil.ReadFile(sslKey)
 
 	// Generate Certificate struct
-	cert, err := tls.X509KeyPair([]byte(sslCert), []byte(sslKey))
+	cert, err := tls.X509KeyPair(BackendCert, BackendKey)
 	if err != nil {
 		log.Fatalf("failed to parse certificate: %v", err)
 	}

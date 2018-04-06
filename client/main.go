@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -14,8 +15,10 @@ import (
 )
 
 func main() {
+	sslCert := os.Getenv("SSL_CERT")
+	srvURL := os.Getenv("SRV_URL")
 	// Read cert file
-	FrontendCert, err := ioutil.ReadFile("./frontend.cert")
+	FrontendCert, err := ioutil.ReadFile(sslCert)
 	if err != nil {
 		log.Fatalf("error reading cert: %s", err.Error())
 	}
@@ -32,7 +35,8 @@ func main() {
 	// Dial with specific transport
 	// opts := []grpc.DialOption{grpc.WithTransportCredentials(credsClient)}
 	// conn, err := grpc.Dial("127.0.0.1:4000", opts...)
-	conn, err := grpc.Dial("frontend.local:4443", grpc.WithTransportCredentials(credsClient))
+	// conn, err := grpc.Dial("frontend.local:4443", grpc.WithTransportCredentials(credsClient))
+	conn, err := grpc.Dial(srvURL, grpc.WithTransportCredentials(credsClient))
 	if err != nil {
 		log.Fatalf("fail to dial: %s", err.Error())
 	}
