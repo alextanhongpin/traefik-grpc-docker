@@ -44,7 +44,7 @@ func main() {
 	defer conn.Close()
 	client := pb.NewEchoServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
 	res, err := client.Echo(ctx, &pb.EchoRequest{
