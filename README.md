@@ -181,4 +181,22 @@ go run client/main.go
 
 ## Miscelleanous
 
-In docker, it is not possible to overwrite the backend url, unless you hardcode the file name.
+In docker, it is not possible to overwrite the backend url, unless you hardcode the file name. Figure out how to make it work with consul_catalog.
+
+![grpc server](assets/multiple-grpc-server.png)
+
+Test load balancing:
+
+```bash
+$ make up 
+$ make test-client
+
+Starting traefikgrpcdocker_client_1 ... done
+Attaching to traefikgrpcdocker_client_1
+client_1       | 2018/04/06 17:20:19 got res: &echo.EchoResponse{Text:"hello world from 6f0a09c7d8ce"}
+
+$ make test-client
+Starting traefikgrpcdocker_client_1 ... done
+Attaching to traefikgrpcdocker_client_1
+client_1       | 2018/04/06 17:20:16 got res: &echo.EchoResponse{Text:"hello world from 3f6c2351a0aa"}
+```

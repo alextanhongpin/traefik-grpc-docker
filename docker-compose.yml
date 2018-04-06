@@ -15,6 +15,11 @@ services:
     restart: always
     ports:
       - 127.0.0.1:8500:8500
+    # hostname: backend.local
+    # extra_hosts:
+    #   - backend.local:192.168.8.102
+    #   - backend.local:127.0.0.1
+    #   - backend.local:0.0.0.0
     networks:
       grpc:
 
@@ -32,6 +37,11 @@ services:
       - backend.cert
       - frontend.cert
       - frontend.key
+    # hostname: frontend.local
+    # extra_hosts:
+      # - frontend.local:192.168.8.102
+      # - frontend.local:127.0.0.1
+      # - frontend.local:0.0.0.0
     networks:
       grpc:
         aliases:
@@ -53,17 +63,22 @@ services:
       # - SERVICE_NAME=server
       # - SERVICE_REGION=ap-southeast-1
       ## NOTE: Not all configuration is available - see the Backend: Consul Catalog documentation
-      # - SERVICE_TAGS=traefik.enable=true,traefik.frontend.entryPoint=https,traefik.frontend.rule=Host:frontend.local,traefik.default.protocol=https,traefik.backend=backend-server
-      ## NOTE: Not all configuration is available - see the Backend: Docker documentation
+      # - SERVICE_TAGS=traefik.enable=true,traefik.protocol=https,traefik.frontend.rule=Host:frontend.local,traefik.frontend.passHostHeader=true,traefik.frontend.entryPoints=https
+      # NOTE: Not all configuration is available - see the Backend: Docker documentation
       # Enables the docker configuration
       # - traefik.tags=api
-      # - traefik.tags=car
+      # - traefik.tags=grpc
       # - traefik.enable=true
-      # - traefik.backend=backend.local
-      # - traefik.docker.network=web
+      # - traefik.backend=backend
+      # - traefik.docker.network=backend.local
       # - traefik.frontend.rule=Host:frontend.local
       # - traefik.port=50051
       # - traefik.default.protocol=https
+    # hostname: backend.local
+    # extra_hosts:
+    #   - backend.local:192.168.8.102
+    #   - backend.local:127.0.0.1
+    #   - backend.local:0.0.0.0
     networks:
       grpc:
         # Here, we give it a alias to the hostname

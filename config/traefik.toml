@@ -21,18 +21,16 @@ RootCAs = [ "/run/secrets/backend.cert" ]
 
 [api]
 
-# [file]
+# [docker]
+# domain = "docker.local"
+# watch = true
+# exposedByDefault = false
 
-[docker]
-domain = "docker.local"
-watch = true
-exposedByDefault = false
-
-[consulCatalog]
-endpoint = "consul:8500"
-exposedByDefault = false # You have to manually add the tags to enable the service to be discovered
-domain = "local"
-prefix = "traefik" # All tags have to be prefixed with traefik, e.g. traefik.enable=true
+# [consulCatalog]
+# endpoint = "consul:8500"
+# exposedByDefault = false # You have to manually add the tags to enable the service to be discovered
+# domain = "docker.local"
+# prefix = "traefik" # All tags have to be prefixed with traefik, e.g. traefik.enable=true
 
 [file]
 
@@ -42,6 +40,8 @@ prefix = "traefik" # All tags have to be prefixed with traefik, e.g. traefik.ena
     url = "https://backend.local:50051"
     [backends.backend1.servers.server2]
     url = "https://backend.local:50052"
+    # [backends.backend1.servers.server3]
+    # url = "https://backend.local:50051"
 
 [frontends]
   [frontends.frontend1]
