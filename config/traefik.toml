@@ -40,8 +40,8 @@ RootCAs = [ "/run/secrets/backend.cert" ]
     url = "https://backend.local:50051"
     [backends.backend1.servers.server2]
     url = "https://backend.local:50052"
-    # [backends.backend1.servers.server3]
-    # url = "https://backend.local:50051"
+    [backends.backend1.servers.server3]
+    url = "https://backend.local:50053"
 
 [frontends]
   [frontends.frontend1]

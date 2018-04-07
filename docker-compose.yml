@@ -1,28 +1,5 @@
 version: '3.6'
 services:
-  registrator:
-    image: gliderlabs/registrator:vendor
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock
-    # setting `-internal=true` will cause linkerd and namerd to fail silently
-    command: -ip=docker.for.mac.localhost -deregister=always -cleanup -tags=registrator consul://consul:8500
-    networks:
-      grpc:
-
-  consul:
-    image: consul:1.0.6
-    restart: always
-    ports:
-      - 127.0.0.1:8500:8500
-    # hostname: backend.local
-    # extra_hosts:
-    #   - backend.local:192.168.8.102
-    #   - backend.local:127.0.0.1
-    #   - backend.local:0.0.0.0
-    networks:
-      grpc:
-
   traefik:
     image: traefik:1.6
     restart: always
@@ -37,70 +14,49 @@ services:
       - backend.cert
       - frontend.cert
       - frontend.key
-    # hostname: frontend.local
-    # extra_hosts:
-      # - frontend.local:192.168.8.102
-      # - frontend.local:127.0.0.1
-      # - frontend.local:0.0.0.0
-    networks:
-      grpc:
-        aliases:
-          - frontend.local
-
-  server:
-    image: alextanhongpin/grpc-server:latest
-    ports:
-      - 127.0.0.1::50051
-    environment:
-      - PORT=:50051
-      - SSL_CERT=/run/secrets/backend.cert
-      - SSL_KEY=/run/secrets/backend.key
-    secrets:
-      - backend.cert
-      - backend.key
-    # labels:
-      # Enables the consul_catalog, by passing the tags to consul through registrator
-      # - SERVICE_NAME=server
-      # - SERVICE_REGION=ap-southeast-1
-      ## NOTE: Not all configuration is available - see the Backend: Consul Catalog documentation
-      # - SERVICE_TAGS=traefik.enable=true,traefik.protocol=https,traefik.frontend.rule=Host:frontend.local,traefik.frontend.passHostHeader=true,traefik.frontend.entryPoints=https
-      # NOTE: Not all configuration is available - see the Backend: Docker documentation
-      # Enables the docker configuration
-      # - traefik.tags=api
-      # - traefik.tags=grpc
-      # - traefik.enable=true
-      # - traefik.backend=backend
-      # - traefik.docker.network=backend.local
-      # - traefik.frontend.rule=Host:frontend.local
-      # - traefik.port=50051
-      # - traefik.default.protocol=https
-    # hostname: backend.local
-    # extra_hosts:
-    #   - backend.local:192.168.8.102
-    #   - backend.local:127.0.0.1
-    #   - backend.local:0.0.0.0
-    networks:
-      grpc:
-        # Here, we give it a alias to the hostname
-        aliases:
-          - backend.local
+    network_mode: host
 
   server1:
     image: alextanhongpin/grpc-server:latest
     ports:
-      - 127.0.0.1::50052
+      - 127.0.0.1:50051:50051
+    environment:
+      - PORT=:50051
+      - SSL_CERT=/run/secrets/backend.cert
+      - SSL_KEY=/run/secrets/backend.key
+    hostname: server1
+    secrets:
+      - backend.cert
+      - backend.key
+    network_mode: host
+
+  server2:
+    image: alextanhongpin/grpc-server:latest
+    ports:
+      - 127.0.0.1:50052:50052
     environment:
       - PORT=:50052
       - SSL_CERT=/run/secrets/backend.cert
       - SSL_KEY=/run/secrets/backend.key
+    hostname: server2
     secrets:
       - backend.cert
       - backend.key
-    networks:
-      grpc:
-        # Here, we give it a alias to the hostname
-        aliases:
-          - backend.local
+    network_mode: host
+
+  server3:
+    image: alextanhongpin/grpc-server:latest
+    ports:
+      - 127.0.0.1:50053:50053
+    environment:
+      - PORT=:50053
+      - SSL_CERT=/run/secrets/backend.cert
+      - SSL_KEY=/run/secrets/backend.key
+    hostname: server3
+    secrets:
+      - backend.cert
+      - backend.key
+    network_mode: host
 
   client:
     image: alextanhongpin/grpc-client:latest
@@ -109,8 +65,7 @@ services:
       - SRV_URL=frontend.local:4443
     secrets:
       - frontend.cert
-    networks:
-      grpc:
+    network_mode: host
 
 secrets:
   backend.cert: 
@@ -122,5 +77,5 @@ secrets:
   frontend.key: 
     file: ./cert/frontend.key
 
-networks:
-  grpc:
+# networks:
+#   grpc:
